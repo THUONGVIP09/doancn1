@@ -1,0 +1,12 @@
+﻿,bien_bao,cay_xanh_vat_can,cong_ho_ga_thoat_nuoc,den_tin_hieu,dien_luc_chieu_sang,do_xe_can_tro,duong_cau_ha_tang_hu_hong,khac,rac_thai_ve_sinh_moi_truong,to_chuc_giao_thong,via_he_long_duong
+bien_bao,16,0,0,0,0,0,0,0,0,0,0
+cay_xanh_vat_can,0,11,0,1,0,2,2,0,0,0,1
+cong_ho_ga_thoat_nuoc,0,0,18,0,1,0,1,0,0,0,0
+den_tin_hieu,0,0,0,13,0,1,0,0,0,1,1
+dien_luc_chieu_sang,0,1,0,2,16,0,0,0,0,1,0
+do_xe_can_tro,1,0,0,1,0,14,0,0,0,0,0
+duong_cau_ha_tang_hu_hong,0,0,2,2,0,0,14,0,0,1,1
+khac,1,0,1,0,0,1,2,0,0,1,0
+rac_thai_ve_sinh_moi_truong,0,0,1,0,0,0,3,0,10,1,1
+to_chuc_giao_thong,1,2,0,1,0,1,7,0,0,4,0
+via_he_long_duong,0,0,1,0,1,1,0,0,1,0,13
