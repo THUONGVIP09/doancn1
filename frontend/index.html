@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Hệ thống phân loại phản ánh hiện trường</title>
+
+  <!-- Bootstrap mới nhất -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- CSS riêng -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">FieldReport AI</a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarMenu"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto gap-lg-4">
+          <li class="nav-item">
+            <a class="nav-link active" href="index.html">Trang chủ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Phản ánh</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#">Giới thiệu</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <!-- HERO SECTION -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="row align-items-center">
+        <!-- LEFT CONTENT -->
+        <div class="col-lg-6">
+          <h1 class="hero-title">
+            Hệ thống phân loại<br />
+            phản ánh hiện trường
+          </h1>
+
+          <p class="hero-desc">
+            Hỗ trợ tiếp nhận, phân loại và quản lý các phản ánh của người dân
+            về hạ tầng, giao thông, môi trường và đô thị.
+          </p>
+
+          <a href="report.html" class="btn hero-btn">
+            Phản ánh ngay
+            </a>
+        </div>
+
+        <!-- RIGHT CONTENT -->
+        <div class="col-lg-6 text-center mt-5 mt-lg-0">
+          <div class="hero-image-box">
+            <div class="circle-bg"></div>
+
+            <div class="phone-card card-small card-1">
+              <span>📍</span> Đường hư hỏng
+            </div>
+
+            <div class="phone-card card-small card-2">
+              <span>🚦</span> Đèn giao thông
+            </div>
+
+            <div class="hero-main-icon">
+              🏙️
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORY SECTION -->
+  <section class="category-section" id="categories">
+    <div class="container">
+      <div class="section-header text-center mb-5">
+        <h2>Danh mục phản ánh</h2>
+        <p>Chọn một loại phản ánh để xem danh sách chi tiết</p>
+      </div>
+
+      <div class="row g-4">
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=duong_cau_ha_tang_hu_hong" class="category-card bg-orange">
+            <div class="category-icon">🛣️</div>
+            <h5>Đường, cầu, hạ tầng hư hỏng</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=dien_luc_chieu_sang" class="category-card bg-blue">
+            <div class="category-icon">💡</div>
+            <h5>Điện lực, chiếu sáng</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=cong_ho_ga_thoat_nuoc" class="category-card bg-cyan">
+            <div class="category-icon">🕳️</div>
+            <h5>Cống, hố ga, thoát nước</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=via_he_long_duong" class="category-card bg-purple">
+            <div class="category-icon">🚶</div>
+            <h5>Vỉa hè, lòng đường</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=cay_xanh_vat_can" class="category-card bg-green">
+            <div class="category-icon">🌳</div>
+            <h5>Cây xanh, vật cản</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=bien_bao" class="category-card bg-yellow">
+            <div class="category-icon">🚧</div>
+            <h5>Biển báo</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=to_chuc_giao_thong" class="category-card bg-pink">
+            <div class="category-icon">🚗</div>
+            <h5>Tổ chức giao thông</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=den_tin_hieu" class="category-card bg-red">
+            <div class="category-icon">🚦</div>
+            <h5>Đèn tín hiệu</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=rac_thai_ve_sinh_moi_truong" class="category-card bg-gray">
+            <div class="category-icon">🗑️</div>
+            <h5>Rác thải, vệ sinh môi trường</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=do_xe_can_tro" class="category-card bg-darkblue">
+            <div class="category-icon">🅿️</div>
+            <h5>Đỗ xe cản trở</h5>
+            </a>
+        </div>
+
+        <div class="col-6 col-md-4 col-lg-3">
+            <a href="category.html?type=khac" class="category-card bg-brown">
+            <div class="category-icon">📌</div>
+            <h5>Khác</h5>
+            </a>
+        </div>
+        </div>
+    </div>
+  </section>
+
+  <!-- BOOTSTRAP JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- JS riêng -->
+  <script src="js/main.js"></script>
+</body>
+</html>
