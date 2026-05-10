@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Tra cứu phản ánh</title>
+
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/chatbot.css">
+</head>
+
+<body>
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg navbar-light custom-navbar">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">FieldReport AI</a>
+
+      <button
+        class="navbar-toggler"
+        type="button"
+        data-bs-toggle="collapse"
+        data-bs-target="#navbarMenu"
+      >
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarMenu">
+        <ul class="navbar-nav ms-auto gap-lg-4">
+          <li class="nav-item">
+            <a class="nav-link" href="index.html">Trang chủ</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link active" href="reports.html">Phản ánh</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="report.html">Gửi phản ánh</a>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+
+  <section class="reports-layout-section">
+  <div class="container-fluid px-4">
+    <div class="row g-4">
+      
+      <!-- LEFT SIDEBAR CATEGORY -->
+      <div class="col-lg-3">
+        <div class="reports-sidebar">
+          <h4>Danh mục phản ánh</h4>
+
+          <a href="category.html?type=duong_cau_ha_tang_hu_hong" class="sidebar-category-item">
+            <span>🛣️</span> Đường, cầu, hạ tầng hư hỏng
+          </a>
+
+          <a href="category.html?type=dien_luc_chieu_sang" class="sidebar-category-item">
+            <span>💡</span> Điện lực, chiếu sáng
+          </a>
+
+          <a href="category.html?type=cong_ho_ga_thoat_nuoc" class="sidebar-category-item">
+            <span>🕳️</span> Cống, hố ga, thoát nước
+          </a>
+
+          <a href="category.html?type=via_he_long_duong" class="sidebar-category-item">
+            <span>🚶</span> Vỉa hè, lòng đường
+          </a>
+
+          <a href="category.html?type=cay_xanh_vat_can" class="sidebar-category-item">
+            <span>🌳</span> Cây xanh, vật cản
+          </a>
+
+          <a href="category.html?type=bien_bao" class="sidebar-category-item">
+            <span>🚧</span> Biển báo
+          </a>
+
+          <a href="category.html?type=to_chuc_giao_thong" class="sidebar-category-item">
+            <span>🚗</span> Tổ chức giao thông
+          </a>
+
+          <a href="category.html?type=den_tin_hieu" class="sidebar-category-item">
+            <span>🚦</span> Đèn tín hiệu
+          </a>
+
+          <a href="category.html?type=rac_thai_ve_sinh_moi_truong" class="sidebar-category-item">
+            <span>🗑️</span> Rác thải, vệ sinh môi trường
+          </a>
+
+          <a href="category.html?type=do_xe_can_tro" class="sidebar-category-item">
+            <span>🅿️</span> Đỗ xe cản trở
+          </a>
+
+          <a href="category.html?type=khac" class="sidebar-category-item">
+            <span>📌</span> Khác
+          </a>
+        </div>
+      </div>
+
+      <!-- RIGHT CONTENT -->
+      <div class="col-lg-9">
+        <div class="reports-main-content">
+          <div class="reports-title-box">
+            <h1>Tra cứu phản ánh hiện trường</h1>
+            <p>Tìm kiếm phản ánh theo địa chỉ, nội dung hoặc nhóm phân loại.</p>
+          </div>
+
+          <!-- SEARCH BAR ONE ROW -->
+          <div class="search-inline-box">
+            <input
+              type="text"
+              class="form-control"
+              id="searchLocation"
+              placeholder="Tìm theo địa chỉ"
+            />
+
+            <input
+              type="text"
+              class="form-control"
+              id="searchContent"
+              placeholder="Tìm theo nội dung"
+            />
+
+            <select class="form-select" id="searchCategory">
+              <option value="">Tất cả phân loại</option>
+              <option value="duong_cau_ha_tang_hu_hong">Đường, cầu, hạ tầng hư hỏng</option>
+              <option value="dien_luc_chieu_sang">Điện lực, chiếu sáng</option>
+              <option value="cong_ho_ga_thoat_nuoc">Cống, hố ga, thoát nước</option>
+              <option value="via_he_long_duong">Vỉa hè, lòng đường</option>
+              <option value="cay_xanh_vat_can">Cây xanh, vật cản</option>
+              <option value="bien_bao">Biển báo</option>
+              <option value="to_chuc_giao_thong">Tổ chức giao thông</option>
+              <option value="den_tin_hieu">Đèn tín hiệu</option>
+              <option value="rac_thai_ve_sinh_moi_truong">Rác thải, vệ sinh môi trường</option>
+              <option value="do_xe_can_tro">Đỗ xe cản trở</option>
+              <option value="khac">Khác</option>
+            </select>
+
+            <button
+              type="button"
+              class="btn icon-action-btn search-icon-btn"
+              onclick="filterReports()"
+              title="Tìm kiếm"
+            >
+              🔍
+            </button>
+
+            <button
+              type="button"
+              class="btn icon-action-btn reset-icon-btn"
+              onclick="resetSearchReports()"
+              title="Làm mới"
+            >
+              ↻
+            </button>
+          </div>
+
+          <div class="section-header text-center mb-4 mt-5">
+            <h2>Kết quả phản ánh</h2>
+            <p id="resultCount">Đang tải dữ liệu...</p>
+          </div>
+
+          <div class="row g-4" id="searchReportList">
+            <!-- JS render dữ liệu ở đây -->
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="js/main.js"></script>
+
+  <!-- Chatbot floating widget -->
+<button class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
+
+<div class="chatbot-box" id="chatbotBox">
+    <div class="chatbot-header">
+        <span>ReportBot - Hỗ trợ phản ánh</span>
+        <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chat-message bot-message">
+            Xin chào! Tôi là ReportBot. Bạn có thể gửi phản ánh hoặc tra cứu trạng thái phản ánh tại đây.
+        </div>
+    </div>
+
+    <div class="chatbot-suggestions">
+        <button onclick="sendSuggestion('Tôi muốn gửi phản ánh')">Gửi phản ánh</button>
+        <button onclick="askReportCode()">Tra cứu mã</button>
+        <button onclick="askReportLocation()">Tra cứu địa điểm</button>
+    </div>
+
+    <div class="chatbot-input-area">
+        <input type="text" id="chatbotInput" placeholder="Nhập tin nhắn..." />
+        <button onclick="sendChatMessage()">Gửi</button>
+    </div>
+</div>
+<script src="js/chatbot.js?v=999"></script>
+</body>
+</html>

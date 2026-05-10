@@ -1,0 +1,36 @@
+version: "3.1"
+
+rules:
+- rule: Chào người dùng
+  steps:
+    - intent: greet
+    - action: utter_greet
+
+- rule: Kích hoạt form gửi phản ánh
+  steps:
+    - intent: submit_report
+    - action: report_form
+    - active_loop: report_form
+
+- rule: Submit form gửi phản ánh
+  condition:
+    - active_loop: report_form
+  steps:
+    - action: report_form
+    - active_loop: null
+    - action: action_confirm_report
+
+- rule: Hủy gửi phản ánh
+  steps:
+    - intent: cancel
+    - action: utter_cancel
+
+- rule: Tạm biệt
+  steps:
+    - intent: goodbye
+    - action: utter_goodbye
+- rule: Tra cứu trạng thái phản ánh
+  steps:
+    - intent: check_report_status
+    - action: action_check_report_status
+    

@@ -147,7 +147,7 @@ function getReportIcon(category) {
 }
 function renderReportImage(report) {
   if (report.image_path) {
-    return `<img src="http://127.0.0.1:8001${report.image_path}" alt="${report.title}" />`;
+    return `<img src="http://127.0.0.1:8000${report.image_path}" alt="${report.title}" />`;
   }
 
   return getReportIcon(report.predicted_category);
@@ -180,7 +180,7 @@ async function renderCategoryPage() {
   `;
 
   try {
-    const response = await fetch(`http://127.0.0.1:8001/reports/${type}`);
+    const response = await fetch(`http://127.0.0.1:8000/reports/${type}`);
 
     if (!response.ok) {
       throw new Error("Không lấy được dữ liệu từ backend.");
@@ -276,7 +276,7 @@ async function renderDetailPage() {
   `;
 
   try {
-    const response = await fetch(`http://127.0.0.1:8001/report/${id}`);
+    const response = await fetch(`http://127.0.0.1:8000/report/${id}`);
 
     if (!response.ok) {
       throw new Error("Không lấy được dữ liệu chi tiết.");
@@ -341,7 +341,7 @@ async function renderDetailPage() {
     detailContent.innerHTML = `
       <div class="empty-box">
         <h4>Không kết nối được backend</h4>
-        <p>Hãy kiểm tra FastAPI đã chạy tại <code>http://127.0.0.1:8001</code> chưa.</p>
+        <p>Hãy kiểm tra FastAPI đã chạy tại <code>http://127.0.0.1:8000</code> chưa.</p>
       </div>
     `;
 
@@ -412,7 +412,7 @@ async function handleReportForm() {
     resultText.innerHTML = "Đang gửi phản ánh và phân loại...";
 
     try {
-      const response = await fetch("http://127.0.0.1:8001/predict", {
+      const response = await fetch("http://127.0.0.1:8000/predict", {
         method: "POST",
         body: formData
       });
@@ -489,7 +489,7 @@ async function submitReport() {
   resultText.innerHTML = "Đang gửi phản ánh và phân loại...";
 
   try {
-    const response = await fetch("http://127.0.0.1:8001/predict", {
+    const response = await fetch("http://127.0.0.1:8000/predict", {
       method: "POST",
       body: formData
     });
@@ -518,3 +518,151 @@ async function submitReport() {
     console.error("Submit error:", error);
   }
 }
+
+
+
+
+
+
+
+let allSearchReports = [];
+
+async function loadSearchReportsPage() {
+  const searchReportList = document.getElementById("searchReportList");
+  const resultCount = document.getElementById("resultCount");
+
+  if (!searchReportList || !resultCount) {
+    return;
+  }
+
+  searchReportList.innerHTML = `
+    <div class="col-12">
+      <div class="empty-box">
+        <h4>Đang tải dữ liệu...</h4>
+        <p>Vui lòng chờ trong giây lát.</p>
+      </div>
+    </div>
+  `;
+
+  try {
+    const response = await fetch("http://127.0.0.1:8000/reports");
+
+    if (!response.ok) {
+      throw new Error("Không lấy được danh sách phản ánh.");
+    }
+
+    allSearchReports = await response.json();
+
+    renderSearchReports(allSearchReports);
+  } catch (error) {
+    searchReportList.innerHTML = `
+      <div class="col-12">
+        <div class="empty-box">
+          <h4>Không kết nối được backend</h4>
+          <p>Hãy kiểm tra FastAPI đã chạy tại <code>http://127.0.0.1:8000</code> chưa.</p>
+        </div>
+      </div>
+    `;
+
+    resultCount.textContent = "Không thể tải dữ liệu.";
+    console.error(error);
+  }
+}
+
+function renderSearchReports(reports) {
+  const searchReportList = document.getElementById("searchReportList");
+  const resultCount = document.getElementById("resultCount");
+
+  if (!searchReportList || !resultCount) {
+    return;
+  }
+
+  resultCount.textContent = `Tìm thấy ${reports.length} phản ánh.`;
+
+  if (reports.length === 0) {
+    searchReportList.innerHTML = `
+      <div class="col-12">
+        <div class="empty-box">
+          <h4>Không có kết quả phù hợp</h4>
+          <p>Thử thay đổi từ khóa, địa chỉ hoặc phân loại khác.</p>
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  searchReportList.innerHTML = reports
+    .map(
+        (report) => `
+        <div class="col-md-6 col-xl-4">
+            <a href="detail.html?id=${report.id}" class="report-link">
+            <div class="report-card">
+                <div class="report-img">
+                ${renderReportImage(report)}
+                </div>
+
+                <div class="report-body">
+                <h5>${report.title}</h5>
+
+                <div class="report-meta">
+                    📍 ${report.location}
+                </div>
+
+                <p>${report.content}</p>
+
+                <span class="status-badge ${getStatusClass(report.status)}">
+                    ${report.status}
+                </span>
+                </div>
+            </div>
+            </a>
+        </div>
+        `
+    )
+    .join("");
+}
+
+function filterReports() {
+  const locationKeyword = document
+    .getElementById("searchLocation")
+    .value
+    .trim()
+    .toLowerCase();
+
+  const contentKeyword = document
+    .getElementById("searchContent")
+    .value
+    .trim()
+    .toLowerCase();
+
+  const categoryValue = document
+    .getElementById("searchCategory")
+    .value;
+
+  const filtered = allSearchReports.filter((report) => {
+    const locationMatch = report.location
+      .toLowerCase()
+      .includes(locationKeyword);
+
+    const contentText = `${report.title} ${report.content}`.toLowerCase();
+    const contentMatch = contentText.includes(contentKeyword);
+
+    const categoryMatch = categoryValue
+      ? report.predicted_category === categoryValue
+      : true;
+
+    return locationMatch && contentMatch && categoryMatch;
+  });
+
+  renderSearchReports(filtered);
+}
+
+function resetSearchReports() {
+  document.getElementById("searchLocation").value = "";
+  document.getElementById("searchContent").value = "";
+  document.getElementById("searchCategory").value = "";
+
+  renderSearchReports(allSearchReports);
+}
+
+loadSearchReportsPage();

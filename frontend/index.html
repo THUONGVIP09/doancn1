@@ -13,6 +13,7 @@
 
   <!-- CSS riêng -->
   <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/chatbot.css">
 </head>
 
 <body>
@@ -33,13 +34,13 @@
       <div class="collapse navbar-collapse" id="navbarMenu">
         <ul class="navbar-nav ms-auto gap-lg-4">
           <li class="nav-item">
-            <a class="nav-link active" href="index.html">Trang chủ</a>
+            <a class="nav-link" href="index.html">Trang chủ</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Phản ánh</a>
+            <a class="nav-link active" href="reports.html">Phản ánh</a>
           </li>
           <li class="nav-item">
-            <a class="nav-link" href="#">Giới thiệu</a>
+            <a class="nav-link" href="report.html">Gửi phản ánh</a>
           </li>
         </ul>
       </div>
@@ -183,5 +184,35 @@
 
   <!-- JS riêng -->
   <script src="js/main.js"></script>
+
+
+<!-- Chatbot floating widget -->
+<button class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
+
+<div class="chatbot-box" id="chatbotBox">
+    <div class="chatbot-header">
+        <span>ReportBot - Hỗ trợ phản ánh</span>
+        <button class="chatbot-close" onclick="toggleChatbot()">×</button>
+    </div>
+
+    <div class="chatbot-messages" id="chatbotMessages">
+        <div class="chat-message bot-message">
+            Xin chào! Tôi là ReportBot. Bạn có thể gửi phản ánh hoặc tra cứu trạng thái phản ánh tại đây.
+        </div>
+    </div>
+
+    <div class="chatbot-suggestions">
+        <button onclick="sendSuggestion('Tôi muốn gửi phản ánh')">Gửi phản ánh</button>
+        <button onclick="askReportCode()">Tra cứu mã</button>
+        <button onclick="askReportLocation()">Tra cứu địa điểm</button>
+    </div>
+
+    <div class="chatbot-input-area">
+        <input type="text" id="chatbotInput" placeholder="Nhập tin nhắn..." />
+        <button onclick="sendChatMessage()">Gửi</button>
+    </div>
+</div>
+<script src="js/chatbot.js?v=999"></script>
 </body>
+
 </html>

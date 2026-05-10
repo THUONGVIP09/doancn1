@@ -10,7 +10,10 @@ import numpy as np
 from tensorflow.keras.models import load_model
 from tensorflow.keras.preprocessing.sequence import pad_sequences
 import joblib
+from pydantic import BaseModel
 
+class ClassifyRequest(BaseModel):
+    content: str
 app = FastAPI()
 
 app.add_middleware(
@@ -200,3 +203,14 @@ def get_report_detail(report_id: int):
         }
 
     return report
+@app.post("/classify-text")
+def classify_text_api(request: ClassifyRequest):
+    content = request.content
+
+    predicted_category, predicted_name, confidence = predict_text_class("", content)
+
+    return {
+        "predicted_category": predicted_category,
+        "predicted_name": predicted_name,
+        "confidence": confidence
+    }

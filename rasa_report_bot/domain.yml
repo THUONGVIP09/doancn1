@@ -1,0 +1,78 @@
+version: "3.1"
+
+intents:
+  - greet
+  - goodbye
+  - submit_report
+  - inform
+  - confirm
+  - cancel
+  - check_report_status
+
+
+
+entities:
+  - report_location
+  - report_id
+
+slots:
+  report_content:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: report_form
+            requested_slot: report_content
+
+  report_location:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_text
+        conditions:
+          - active_loop: report_form
+            requested_slot: report_location
+  report_id:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: report_id
+
+  lookup_location:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: from_entity
+        entity: report_location
+
+forms:
+  report_form:
+    required_slots:
+      - report_content
+      - report_location
+
+responses:
+  utter_greet:
+    - text: "Xin chào! Tôi là ReportBot. Bạn muốn gửi phản ánh hiện trường không?"
+
+  utter_goodbye:
+    - text: "Tạm biệt bạn!"
+
+  utter_ask_report_content:
+    - text: "Bạn muốn phản ánh vấn đề gì?"
+
+  utter_ask_report_location:
+    - text: "Vấn đề xảy ra ở đâu?"
+
+  utter_cancel:
+    - text: "Đã hủy gửi phản ánh."
+
+actions:
+  - action_confirm_report
+  - action_check_report_status
+  - validate_report_form
+
+
+

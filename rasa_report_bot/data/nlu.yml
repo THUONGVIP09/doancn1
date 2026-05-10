@@ -1,0 +1,73 @@
+version: "3.1"
+
+nlu:
+- intent: greet
+  examples: |
+    - xin chào
+    - chào bạn
+    - hello
+    - hi
+
+- intent: goodbye
+  examples: |
+    - tạm biệt
+    - bye
+    - gặp lại sau
+
+- intent: submit_report
+  examples: |
+    - tôi muốn gửi phản ánh
+    - tôi muốn phản ánh
+    - tôi cần báo sự cố
+    - tôi muốn báo vấn đề giao thông
+    - gửi phản ánh giúp tôi
+    - báo cáo sự cố
+    - phản ánh hiện trường
+    - tôi muốn báo đường hư
+    - tôi muốn báo đèn đường bị hỏng
+    - tôi muốn phản ánh cống thoát nước bị nghẹt
+
+- intent: inform
+  examples: |
+    - Đường trước cổng trường VKU có ổ gà lớn
+    - Đèn đường ở Nguyễn Hữu Thọ bị hỏng
+    - Cống thoát nước bị nghẹt
+    - Cây xanh bị ngã chắn ngang đường
+    - Có rác thải trên vỉa hè
+    - Vấn đề xảy ra ở [trước cổng trường VKU](report_location)
+    - tại [đường Nguyễn Hữu Thọ](report_location)
+    - ở [Cầu Rồng](report_location)
+    - gần [sân bay Đà Nẵng](report_location)
+    - khu vực [Ngũ Hành Sơn](report_location)
+
+- intent: confirm
+  examples: |
+    - đúng rồi
+    - ok
+    - đồng ý
+    - chính xác
+
+- intent: cancel
+  examples: |
+    - hủy
+    - thôi không gửi nữa
+    - không cần nữa
+
+- intent: check_report_status
+
+  examples: |
+    - kiểm tra phản ánh
+    - tra cứu phản ánh
+    - xem trạng thái phản ánh
+    - kiểm tra trạng thái phản ánh
+    - phản ánh của tôi xử lý chưa
+    - phản ánh số [17](report_id)
+    - kiểm tra phản ánh số [17](report_id)
+    - tra cứu mã phản ánh [18](report_id)
+    - xem phản ánh #[19](report_id)
+    - kiểm tra mã [20](report_id)
+    - phản ánh ở [trước cổng trường VKU](report_location) xử lý chưa
+    - kiểm tra phản ánh tại [đường Nguyễn Hữu Thọ](report_location)
+    - xem phản ánh ở [Cầu Rồng](report_location)
+    - tra cứu phản ánh gần [sân bay Đà Nẵng](report_location)
+    - khu vực [Ngũ Hành Sơn](report_location) có phản ánh nào không
