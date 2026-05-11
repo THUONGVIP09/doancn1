@@ -12,116 +12,7 @@ const categoryNames = {
   khac: "Khác"
 };
 
-const reports = [
-  {
-    id: 1,
-    type: "duong_cau_ha_tang_hu_hong",
-    title: "Mặt đường xuất hiện ổ gà lớn",
-    location: "Đường Nguyễn Văn Linh, Đà Nẵng",
-    description: "Mặt đường bị bong tróc, xuất hiện ổ gà gây nguy hiểm cho người tham gia giao thông.",
-    status: "Chờ xử lý",
-    icon: "🛣️"
-  },
-  {
-    id: 2,
-    type: "duong_cau_ha_tang_hu_hong",
-    title: "Nắp bê tông trên cầu bị nứt",
-    location: "Khu vực cầu Rồng",
-    description: "Một vị trí trên cầu có dấu hiệu hư hỏng, cần được kiểm tra và sửa chữa.",
-    status: "Đang xử lý",
-    icon: "🌉"
-  },
-  {
-    id: 3,
-    type: "dien_luc_chieu_sang",
-    title: "Đèn đường không hoạt động",
-    location: "Đường Lê Duẩn, Hải Châu",
-    description: "Một số bóng đèn chiếu sáng công cộng bị tắt vào ban đêm.",
-    status: "Chờ xử lý",
-    icon: "💡"
-  },
-  {
-    id: 4,
-    type: "cong_ho_ga_thoat_nuoc",
-    title: "Hố ga bị mất nắp",
-    location: "Đường Trần Cao Vân",
-    description: "Hố ga trên lề đường bị mất nắp, có nguy cơ gây tai nạn cho người dân.",
-    status: "Đang xử lý",
-    icon: "🕳️"
-  },
-  {
-    id: 5,
-    type: "via_he_long_duong",
-    title: "Vỉa hè bị lấn chiếm",
-    location: "Khu vực chợ Cồn",
-    description: "Một số hộ kinh doanh đặt vật dụng trên vỉa hè, ảnh hưởng đến người đi bộ.",
-    status: "Chờ xử lý",
-    icon: "🚶"
-  },
-  {
-    id: 6,
-    type: "cay_xanh_vat_can",
-    title: "Cành cây che khuất tầm nhìn",
-    location: "Đường Điện Biên Phủ",
-    description: "Cành cây mọc thấp, che khuất biển báo và gây khó quan sát.",
-    status: "Đã xử lý",
-    icon: "🌳"
-  },
-  {
-    id: 7,
-    type: "bien_bao",
-    title: "Biển báo bị nghiêng",
-    location: "Ngã tư Nguyễn Tri Phương",
-    description: "Biển báo giao thông bị lệch, khó quan sát từ xa.",
-    status: "Chờ xử lý",
-    icon: "🚧"
-  },
-  {
-    id: 8,
-    type: "to_chuc_giao_thong",
-    title: "Phân luồng giao thông chưa hợp lý",
-    location: "Khu vực vòng xoay phía Tây",
-    description: "Lưu lượng phương tiện đông, thường xuyên xảy ra ùn ứ vào giờ cao điểm.",
-    status: "Đang xử lý",
-    icon: "🚗"
-  },
-  {
-    id: 9,
-    type: "den_tin_hieu",
-    title: "Đèn tín hiệu bị lỗi",
-    location: "Ngã tư Ông Ích Khiêm",
-    description: "Đèn tín hiệu chuyển trạng thái không ổn định, gây khó khăn cho phương tiện.",
-    status: "Chờ xử lý",
-    icon: "🚦"
-  },
-  {
-    id: 10,
-    type: "rac_thai_ve_sinh_moi_truong",
-    title: "Rác thải tồn đọng ven đường",
-    location: "Khu dân cư Hòa Khánh",
-    description: "Rác thải sinh hoạt chưa được thu gom, gây mất mỹ quan đô thị.",
-    status: "Đang xử lý",
-    icon: "🗑️"
-  },
-  {
-    id: 11,
-    type: "do_xe_can_tro",
-    title: "Xe ô tô đỗ chắn lối đi",
-    location: "Đường Phan Châu Trinh",
-    description: "Xe đỗ sai quy định, cản trở lối đi và ảnh hưởng đến giao thông.",
-    status: "Chờ xử lý",
-    icon: "🅿️"
-  },
-  {
-    id: 12,
-    type: "khac",
-    title: "Phản ánh khác cần kiểm tra",
-    location: "Khu vực trung tâm thành phố",
-    description: "Nội dung phản ánh chưa thuộc nhóm cụ thể, cần cán bộ kiểm tra thêm.",
-    status: "Chờ xử lý",
-    icon: "📌"
-  }
-];
+
 
 function getStatusClass(status) {
   if (status === "Đang xử lý") return "status-processing";
@@ -444,6 +335,141 @@ async function handleReportForm() {
 
     return false;
   });
+}
+
+const VIETMAP_TILEMAP_KEY = "d1a19a1564c885dd9cc8dd5916f9f4b6b8b5ae9b25a16a41";
+const VIETMAP_SERVICES_KEY = "ed9c43c7c34836b71f11afe43e42e6103b1b2bf886421643";
+
+let reportMap = null;
+let reportMarker = null;
+
+async function getCurrentLocationForReport() {
+    const locationInput = document.getElementById("reportLocation");
+    const statusElement = document.getElementById("locationStatus");
+    const latInput = document.getElementById("reportLatitude");
+    const lngInput = document.getElementById("reportLongitude");
+
+    if (!navigator.geolocation) {
+        statusElement.textContent = "Trình duyệt không hỗ trợ lấy vị trí.";
+        return;
+    }
+
+    statusElement.textContent = "Đang lấy vị trí hiện tại...";
+
+    navigator.geolocation.getCurrentPosition(
+        async function (position) {
+            const lat = position.coords.latitude;
+            const lng = position.coords.longitude;
+
+            if (latInput) latInput.value = lat;
+            if (lngInput) lngInput.value = lng;
+
+            showReportMap(lat, lng);
+
+            statusElement.textContent = "Đang chuyển tọa độ thành địa chỉ...";
+
+            try {
+                const address = await reverseGeocodeVietmap(lat, lng);
+
+                if (address) {
+                    locationInput.value = address;
+                    statusElement.textContent = "Đã lấy địa điểm thành công.";
+                } else {
+                    locationInput.value = `${lat}, ${lng}`;
+                    statusElement.textContent = "Không tìm thấy địa chỉ, đã điền tọa độ.";
+                }
+            } catch (error) {
+                console.error("Lỗi Vietmap:", error);
+                locationInput.value = `${lat}, ${lng}`;
+                statusElement.textContent = "Không thể lấy địa chỉ từ Vietmap, đã điền tọa độ.";
+            }
+        },
+        function (error) {
+            console.error("GPS Error:", error);
+
+            if (error.code === error.PERMISSION_DENIED) {
+                statusElement.textContent = "Bạn cần cho phép trình duyệt truy cập vị trí.";
+            } else if (error.code === error.TIMEOUT) {
+                statusElement.textContent = "Lấy vị trí quá lâu, vui lòng thử lại.";
+            } else {
+                statusElement.textContent = "Không thể lấy vị trí hiện tại.";
+            }
+        },
+        {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        }
+    );
+}
+
+function showReportMap(lat, lng) {
+    if (typeof vietmapgl === "undefined") {
+        console.error("Vietmap GL chưa được load. Kiểm tra lại script Vietmap trong HTML.");
+        document.getElementById("locationStatus").textContent =
+            "Chưa tải được thư viện bản đồ Vietmap.";
+        return;
+    }
+
+    const mapDiv = document.getElementById("reportMap");
+    mapDiv.style.display = "block";
+
+    if (!reportMap) {
+        vietmapgl.accessToken = VIETMAP_TILEMAP_KEY;
+
+        reportMap = new vietmapgl.Map({
+            container: "reportMap",
+            style: `https://maps.vietmap.vn/api/maps/light/styles.json?apikey=${VIETMAP_TILEMAP_KEY}`,
+            center: [lng, lat],
+            zoom: 16
+        });
+
+        reportMap.addControl(new vietmapgl.NavigationControl(), "top-right");
+    } else {
+        reportMap.setCenter([lng, lat]);
+        reportMap.setZoom(16);
+    }
+
+    if (reportMarker) {
+        reportMarker.remove();
+    }
+
+    reportMarker = new vietmapgl.Marker()
+        .setLngLat([lng, lat])
+        .addTo(reportMap);
+
+    setTimeout(() => {
+        reportMap.resize();
+    }, 300);
+}
+
+async function reverseGeocodeVietmap(lat, lng) {
+    const url = `https://maps.vietmap.vn/api/reverse/v3?apikey=${VIETMAP_SERVICES_KEY}&lat=${lat}&lng=${lng}`;
+
+    const response = await fetch(url);
+
+    if (!response.ok) {
+        throw new Error("Không gọi được Vietmap Reverse API");
+    }
+
+    const data = await response.json();
+    console.log("Vietmap reverse data:", data);
+
+    const actualData = Array.isArray(data) ? data[0] : data;
+
+    if (actualData && actualData.display) {
+        return actualData.display;
+    }
+
+    if (actualData && actualData.address) {
+        return actualData.address;
+    }
+
+    if (actualData && actualData.name) {
+        return actualData.name;
+    }
+
+    return null;
 }
 
 //handleReportForm();
