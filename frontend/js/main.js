@@ -595,6 +595,7 @@ async function loadSearchReportsPage() {
   }
 }
 
+
 function renderSearchReports(reports) {
   const searchReportList = document.getElementById("searchReportList");
   const resultCount = document.getElementById("resultCount");
@@ -665,30 +666,120 @@ function filterReports() {
     .getElementById("searchCategory")
     .value;
 
-  const filtered = allSearchReports.filter((report) => {
-    const locationMatch = report.location
-      .toLowerCase()
-      .includes(locationKeyword);
+  const timeFilter = document.getElementById("timeFilter").value;
+  const startDateValue = document.getElementById("startDate").value;
+  const endDateValue = document.getElementById("endDate").value;
 
-    const contentText = `${report.title} ${report.content}`.toLowerCase();
+  if (timeFilter === "custom" && (!startDateValue || !endDateValue)) {
+    alert("Vui lòng chọn ngày bắt đầu và ngày kết thúc.");
+    return;
+  }
+
+  const filtered = allSearchReports.filter((report) => {
+    const location = (report.location || "").toLowerCase();
+    const title = (report.title || "").toLowerCase();
+    const content = (report.content || "").toLowerCase();
+
+    const locationMatch = location.includes(locationKeyword);
+
+    const contentText = `${title} ${content}`;
     const contentMatch = contentText.includes(contentKeyword);
 
     const categoryMatch = categoryValue
       ? report.predicted_category === categoryValue
       : true;
 
-    return locationMatch && contentMatch && categoryMatch;
+    const timeMatch = checkTimeMatch(
+      report.created_at,
+      timeFilter,
+      startDateValue,
+      endDateValue
+    );
+
+    return locationMatch && contentMatch && categoryMatch && timeMatch;
   });
 
   renderSearchReports(filtered);
 }
+function checkTimeMatch(createdAt, timeFilter, startDateValue, endDateValue) {
+  if (timeFilter === "all") {
+    return true;
+  }
 
+  if (!createdAt) {
+    return false;
+  }
+
+  const reportDate = new Date(createdAt);
+  const now = new Date();
+
+  const todayStart = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate(),
+    0,
+    0,
+    0
+  );
+
+  const tomorrowStart = new Date(todayStart);
+  tomorrowStart.setDate(todayStart.getDate() + 1);
+
+  if (timeFilter === "today") {
+    return reportDate >= todayStart && reportDate < tomorrowStart;
+  }
+
+  if (timeFilter === "7days") {
+    const sevenDaysAgo = new Date();
+    sevenDaysAgo.setDate(now.getDate() - 7);
+
+    return reportDate >= sevenDaysAgo && reportDate <= now;
+  }
+
+  if (timeFilter === "30days") {
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(now.getDate() - 30);
+
+    return reportDate >= thirtyDaysAgo && reportDate <= now;
+  }
+
+  if (timeFilter === "custom") {
+    const startDate = new Date(startDateValue);
+    const endDate = new Date(endDateValue);
+
+    startDate.setHours(0, 0, 0, 0);
+    endDate.setHours(23, 59, 59, 999);
+
+    return reportDate >= startDate && reportDate <= endDate;
+  }
+
+  return true;
+}
 function resetSearchReports() {
   document.getElementById("searchLocation").value = "";
   document.getElementById("searchContent").value = "";
   document.getElementById("searchCategory").value = "";
+  document.getElementById("timeFilter").value = "all";
+  document.getElementById("startDate").value = "";
+  document.getElementById("endDate").value = "";
+  document.getElementById("customDateBox").style.display = "none";
 
   renderSearchReports(allSearchReports);
 }
 
 loadSearchReportsPage();
+
+function handleTimeFilterChange() {
+  const timeFilter = document.getElementById("timeFilter");
+  const customDateBox = document.getElementById("customDateBox");
+  const startDate = document.getElementById("startDate");
+  const endDate = document.getElementById("endDate");
+
+  if (timeFilter.value === "custom") {
+    customDateBox.style.display = "flex";
+  } else {
+    customDateBox.style.display = "none";
+    startDate.value = "";
+    endDate.value = "";
+  }
+}

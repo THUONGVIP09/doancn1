@@ -1,3 +1,4 @@
+from importlib.metadata import metadata
 from typing import Any, Text, Dict, List
 
 import re
@@ -118,8 +119,8 @@ def find_duplicate_report(content: str, location: str, category: str):
     return None
 
 
-def save_report_to_db(content, location, category, predicted_name, confidence, duplicate_of=None):
-    title = content[:80]
+def save_report_to_db(content, location, category, predicted_name, confidence, duplicate_of=None, image_path=None):
+    title = content[:100]
 
     with engine.begin() as conn:
         result = conn.execute(
@@ -133,7 +134,7 @@ def save_report_to_db(content, location, category, predicted_name, confidence, d
                 "title": title,
                 "content": content,
                 "location": location,
-                "image_path": None,
+                "image_path": image_path,
                 "predicted_category": category,
                 "predicted_name": predicted_name,
                 "status": "Chờ xử lý",
@@ -144,67 +145,181 @@ def save_report_to_db(content, location, category, predicted_name, confidence, d
 
         return result.lastrowid
 
+def verify_location_with_vietmap(location_text: str):
+    try:
+        response = requests.post(
+            "http://127.0.0.1:8000/verify-location",
+            json={"query": location_text},
+            timeout=10
+        )
+
+        response.raise_for_status()
+        data = response.json()
+
+        if data.get("valid"):
+            return data
+
+        return None
+
+    except Exception as e:
+        print("Lỗi kiểm tra địa điểm bằng Vietmap:", e)
+        return None
+
+def clean_location_text(location: str):
+    if not location:
+        return None
+
+    location = location.strip(" ,.-;:")
+
+    # Cắt bỏ phần mô tả sự cố phía sau địa điểm
+    stop_phrases = [
+        " không nhảy",
+        " không hoạt động",
+        " không đếm",
+        " không được bật",
+        " không bật",
+        " không sáng",
+        " bị hỏng",
+        " bị nghẹt",
+        " bị ngập",
+        " bị kẹt",
+        " bị ngã",
+        " chắn ngang",
+        " có ổ gà",
+        " có rác",
+        " xuống cấp",
+        " hư hỏng",
+        " mất tín hiệu",
+        " gây khó khăn",
+        " gây nguy hiểm",
+        " ảnh hưởng",
+    ]
+
+    location_lower = location.lower()
+
+    cut_positions = []
+    for phrase in stop_phrases:
+        pos = location_lower.find(phrase)
+        if pos != -1:
+            cut_positions.append(pos)
+
+    if cut_positions:
+        location = location[:min(cut_positions)]
+
+    # Bỏ từ mở đầu dư
+    prefixes = [
+        "vấn đề xảy ra ở ",
+        "vấn đề xảy ra tại ",
+        "sự việc xảy ra ở ",
+        "sự việc xảy ra tại ",
+        "địa điểm là ",
+        "ở ",
+        "tại ",
+        "gần ",
+        "khu vực ",
+    ]
+
+    location_lower = location.lower().strip()
+
+    for prefix in prefixes:
+        if location_lower.startswith(prefix):
+            location = location[len(prefix):]
+            break
+
+    location = re.sub(r"\s+", " ", location).strip(" ,.-;:")
+
+    if len(location) < 5:
+        return None
+
+    return location
 
 
 def extract_location_from_text(text: str):
-    """
-    Tách địa điểm từ nội dung phản ánh.
-    Ưu tiên địa chỉ hành chính, địa danh, tọa độ.
-    Tránh bắt nhầm các cụm mô tả như: "trước nhà dân", "trước cổng", ...
-    """
-
     if not text:
         return None
 
-    text = text.strip()
+    text = text.strip().rstrip(".!?").strip()
 
-    # 1. Bắt tọa độ dạng: 9°36'08.4"N 106°20'35.7"E, xã Long Vĩnh
-    coord_pattern = r"(\d{1,2}°\d{1,2}'\d{1,2}(?:\.\d+)?\"?[NS]\s+\d{1,3}°\d{1,2}'\d{1,2}(?:\.\d+)?\"?[EW](?:,\s*[^.;\n\)]*)?)"
-    coord_match = re.search(coord_pattern, text, flags=re.IGNORECASE)
+    # Các cụm này chứng tỏ câu đang mô tả sự cố, không phải địa chỉ
+    invalid_location_phrases = [
+        "đường dây điện",
+        "dây điện",
+        "cành cây",
+        "nhánh cây",
+        "cây vướng",
+        "mùa mưa",
+        "nguy hiểm",
+        "gây nguy hiểm",
+        "gây khó khăn",
+        "không được bật",
+        "không sáng",
+        "không nhảy",
+        "bị hỏng",
+        "bị nghẹt",
+        "bị ngập",
+        "có ổ gà",
+        "có rác",
+    ]
 
-    if coord_match:
-        location = coord_match.group(1).strip(" ,.-;:()")
-        if len(location) >= 8:
-            return location
+    def is_valid_location(location: str):
+        location_lower = location.lower()
 
-    # 2. Bắt phần trong ngoặc nếu có chứa xã/phường/quận/huyện/tỉnh hoặc tọa độ
-    bracket_pattern = r"\(([^)]*(?:xã|phường|quận|huyện|tỉnh|thành phố|°)[^)]*)\)"
-    bracket_match = re.search(bracket_pattern, text, flags=re.IGNORECASE)
+        # Nếu chứa cụm mô tả sự cố mà không có phường/xã/tỉnh/ngã tư rõ ràng thì loại
+        has_admin_place = any(
+            key in location_lower
+            for key in ["phường", "xã", "thị trấn", "quận", "huyện", "tỉnh", "thành phố", "ngã tư", "ngã ba", "cầu"]
+        )
 
-    if bracket_match:
-        location = bracket_match.group(1).strip(" ,.-;:")
-        if len(location) >= 8:
-            return location
+        has_invalid_phrase = any(
+            phrase in location_lower
+            for phrase in invalid_location_phrases
+        )
 
-    # 3. Bắt cụm bắt đầu từ "tại/ở/khu vực/gần/đoạn gần"
-    # Không dùng "trước/sau" vì dễ bắt nhầm mô tả sự cố.
+        if has_invalid_phrase and not has_admin_place:
+            return False
+
+        # Loại các cụm quá chung chung như "đường dây điện", "đường nhiều cành cây..."
+        if location_lower.startswith("đường dây điện"):
+            return False
+
+        if location_lower.startswith("đường nhiều"):
+            return False
+
+        if location_lower.startswith("đường có"):
+            return False
+
+        if location_lower.startswith("đường bị"):
+            return False
+
+        if location_lower.startswith("đường ngập"):
+            return False
+
+        return True
+
     patterns = [
-        r"(?:địa chỉ|địa điểm|vị trí)\s*(?:là|:)?\s*([^.;\n]+)",
-        r"(?:đoạn gần|gần|khu vực|tại|ở)\s+([^.;\n]+)",
-        r"((?:đường|cầu|ngã tư|hẻm|kiệt|xã|phường|quận|huyện|tỉnh|thành phố)\s+[^.;\n]+)"
+        # Dạng rõ nhất: Đường Võ Văn Tần, phường Nguyệt Hoá, tỉnh Vĩnh Long
+        r"((?:đường|cầu|ngã tư|ngã ba|vòng xoay)\s+.+?(?:,\s*)?(?:phường|xã|thị trấn)\s+.+?(?:,\s*)?(?:quận|huyện|thành phố|tỉnh)\s+[^.;\n]+)",
+
+        # Dạng giao lộ: đường A giao đường B, phường X, tỉnh Y
+        r"((?:đường|cầu|ngã tư|ngã ba|vòng xoay)\s+.+?(?:giao|giao với|cắt|cắt với)\s+(?:đường|cầu)?\s*.+?(?:,\s*)?(?:phường|xã|thị trấn)\s+.+?(?:,\s*)?(?:quận|huyện|thành phố|tỉnh)\s+[^.;\n]+)",
+
+        # Dạng có phường/xã + tỉnh/thành phố
+        r"((?:phường|xã|thị trấn)\s+.+?(?:tỉnh|thành phố)\s+[^.;\n]+)",
+
+        # Dạng địa điểm có từ khóa rõ hơn
+        r"((?:ngã tư|ngã ba|vòng xoay|cầu)\s+[^.;\n]+)",
+
+        # Dạng đường nhưng phải có tên riêng phía sau, tránh bắt 'đường dây điện'
+        r"((?:đường)\s+(?!dây điện|nhiều|có|bị|ngập|hư|xuống cấp)[A-ZÀ-ỴĐ][^.;\n,]+)",
     ]
 
     for pattern in patterns:
         match = re.search(pattern, text, flags=re.IGNORECASE)
 
         if match:
-            location = match.group(1).strip()
+            location = clean_location_text(match.group(1))
 
-            # Cắt bớt phần mô tả nếu lẫn vào
-            stop_words = [
-                "bị", "có", "rơi", "gãy", "đổ", "hư", "nguy hiểm",
-                "mùa mưa", "cho người dân"
-            ]
-
-            for word in stop_words:
-                idx = location.lower().find(word)
-                if idx > 0:
-                    location = location[:idx].strip()
-
-            location = location.strip(" ,.-;:()")
-
-            # Tránh bắt quá ngắn kiểu "Trà"
-            if len(location) >= 8 and len(location.split()) >= 2:
+            if location and len(location.split()) >= 2 and is_valid_location(location):
                 return location
 
     return None
@@ -222,11 +337,22 @@ class ValidateReportForm(FormValidationAction):
     ):
         content = slot_value.strip()
 
+        if len(content) < 10:
+            dispatcher.utter_message(
+                text="Nội dung phản ánh hơi ngắn, bạn vui lòng mô tả rõ hơn giúp tôi nhé."
+            )
+            return {
+                "report_content": None
+            }
+
         extracted_location = extract_location_from_text(content)
+
+        print("CONTENT:", content)
+        print("EXTRACTED LOCATION:", extracted_location)
 
         if extracted_location:
             dispatcher.utter_message(
-                text=f"Tôi đã nhận diện địa điểm là: {extracted_location}"
+                text=f"Tôi đã nhận diện địa điểm là: {extracted_location}."
             )
 
             return {
@@ -234,10 +360,12 @@ class ValidateReportForm(FormValidationAction):
                 "report_location": extracted_location
             }
 
+        # Nếu không tách được địa điểm hoặc Vietmap không xác nhận được
+        # thì bắt buộc hỏi lại địa điểm
         return {
-            "report_content": content
+            "report_content": content,
+            "report_location": None
         }
-
     def validate_report_location(
         self,
         slot_value,
@@ -245,18 +373,22 @@ class ValidateReportForm(FormValidationAction):
         tracker,
         domain,
     ):
-        location = slot_value.strip()
+        location = clean_location_text(slot_value)
 
-        if len(location) < 5:
+        if not location or len(location) < 5:
             dispatcher.utter_message(
-                text="Địa điểm hơi ngắn, bạn vui lòng nhập rõ hơn giúp tôi nhé."
+                text="Địa điểm hơi ngắn, bạn vui lòng nhập rõ hơn hoặc bấm 📍 Gửi vị trí nhé."
             )
             return {
                 "report_location": None
             }
 
+        metadata = tracker.latest_message.get("metadata") or {}
+        image_path = metadata.get("image_path")
+
         return {
-            "report_location": location
+            "report_location": location,
+            "report_image_path": image_path
         }
 class ActionConfirmReport(Action):
 
@@ -272,6 +404,10 @@ class ActionConfirmReport(Action):
 
         content = tracker.get_slot("report_content")
         location = tracker.get_slot("report_location")
+        image_path = tracker.get_slot("report_image_path")
+        image_url = None
+        if image_path:
+            image_url = f"http://127.0.0.1:8000{image_path}"
 
         if not content or not location:
             dispatcher.utter_message(text="Thông tin phản ánh chưa đầy đủ. Bạn vui lòng nhập lại giúp tôi.")
@@ -292,7 +428,8 @@ class ActionConfirmReport(Action):
                 category=category,
                 predicted_name=predicted_name,
                 confidence=confidence,
-                duplicate_of=duplicate["id"]
+                duplicate_of=duplicate["id"],
+                image_path=image_path
             )
 
             message = (
@@ -311,7 +448,8 @@ class ActionConfirmReport(Action):
                 category=category,
                 predicted_name=predicted_name,
                 confidence=confidence,
-                duplicate_of=None
+                duplicate_of=None,
+                image_path=image_path
             )
 
             message = (
@@ -322,11 +460,15 @@ class ActionConfirmReport(Action):
                 f"Trạng thái: Chờ xử lý."
             )
 
-        dispatcher.utter_message(text=message)
+            if image_url:
+                dispatcher.utter_message(text=message, image=image_url)
+            else:
+                dispatcher.utter_message(text=message)
 
         return [
             SlotSet("report_content", None),
-            SlotSet("report_location", None)
+            SlotSet("report_location", None),
+            SlotSet("report_image_path", None)
         ]
 class ActionCheckReportStatus(Action):
 
@@ -349,9 +491,28 @@ class ActionCheckReportStatus(Action):
         # Ví dụ: "kiểm tra phản ánh số 17", "#17"
         # =========================
         if not report_id:
-            match = re.search(r"#?\b(\d+)\b", user_text)
-            if match:
-                report_id = match.group(1)
+            user_text_clean = user_text.strip().lower()
+
+            # Trường hợp người dùng chỉ nhập số, ví dụ: "17"
+            if re.fullmatch(r"\d+", user_text_clean):
+                report_id = user_text_clean
+
+            # Trường hợp người dùng nhập "#17"
+            elif re.fullmatch(r"#\d+", user_text_clean):
+                report_id = user_text_clean.replace("#", "")
+
+            # Trường hợp nhập đầy đủ: "kiểm tra phản ánh số 17"
+            else:
+                id_patterns = [
+                    r"(?:mã phản ánh|phản ánh mã|phản ánh số|số phản ánh|mã|số)\s*#?\s*(\d+)",
+                    r"(?:kiểm tra|tra cứu|xem)\s+(?:phản ánh|mã phản ánh)?\s*(?:số|mã)?\s*#?\s*(\d+)"
+                ]
+
+                for pattern in id_patterns:
+                    match = re.search(pattern, user_text_clean)
+                    if match:
+                        report_id = match.group(1)
+                        break
 
         # =========================
         # 2. Nếu có mã phản ánh thì tra cứu theo ID
@@ -485,3 +646,4 @@ class ActionCheckReportStatus(Action):
             SlotSet("report_id", None),
             SlotSet("report_location", None)
         ]
+    

@@ -33,6 +33,11 @@ slots:
         conditions:
           - active_loop: report_form
             requested_slot: report_location
+  report_image_path:
+    type: text
+    influence_conversation: false
+    mappings:
+      - type: custom
   report_id:
     type: text
     influence_conversation: false

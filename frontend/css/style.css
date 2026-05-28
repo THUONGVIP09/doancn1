@@ -815,3 +815,56 @@ body {
     height: 300px;
     border: 1px solid #dee2e6;
 }
+
+
+
+.search-filter-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.search-filter-box select,
+.search-filter-box input {
+  max-width: 220px;
+}
+
+#customDateBox {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.search-inline-box {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 12px;
+}
+
+.search-inline-box .form-control,
+.search-inline-box .form-select {
+  min-width: 180px;
+  flex: 1;
+}
+
+.icon-action-btn {
+  min-width: 44px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.custom-date-box {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.custom-date-box .form-control {
+  max-width: 220px;
+}
