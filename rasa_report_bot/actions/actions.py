@@ -165,6 +165,7 @@ def verify_location_with_vietmap(location_text: str):
         print("Lỗi kiểm tra địa điểm bằng Vietmap:", e)
         return None
 
+
 def clean_location_text(location: str):
     if not location:
         return None
@@ -233,12 +234,11 @@ def clean_location_text(location: str):
 
     return location
 
-
 def extract_location_from_text(text: str):
     if not text:
         return None
 
-    text = text.strip().rstrip(".!?").strip()
+    text = text.strip().rstrip(".!? ").strip()
 
     # Các cụm này chứng tỏ câu đang mô tả sự cố, không phải địa chỉ
     invalid_location_phrases = [
@@ -264,7 +264,6 @@ def extract_location_from_text(text: str):
     def is_valid_location(location: str):
         location_lower = location.lower()
 
-        # Nếu chứa cụm mô tả sự cố mà không có phường/xã/tỉnh/ngã tư rõ ràng thì loại
         has_admin_place = any(
             key in location_lower
             for key in ["phường", "xã", "thị trấn", "quận", "huyện", "tỉnh", "thành phố", "ngã tư", "ngã ba", "cầu"]
@@ -278,7 +277,6 @@ def extract_location_from_text(text: str):
         if has_invalid_phrase and not has_admin_place:
             return False
 
-        # Loại các cụm quá chung chung như "đường dây điện", "đường nhiều cành cây..."
         if location_lower.startswith("đường dây điện"):
             return False
 
@@ -354,11 +352,17 @@ class ValidateReportForm(FormValidationAction):
             dispatcher.utter_message(
                 text=f"Tôi đã nhận diện địa điểm là: {extracted_location}."
             )
+            verified_location = verify_location_with_vietmap(extracted_location)
 
-            return {
-                "report_content": content,
-                "report_location": extracted_location
-            }
+            if verified_location:
+                address = verified_location.get("address")
+                dispatcher.utter_message(
+                    text=f"Tôi đã nhận diện địa điểm là: {address}. Nếu chưa đúng, bạn có thể nhập lại địa điểm hoặc bấm 📍 Gửi vị trí."
+                )
+                return {
+                    "report_content": content,
+                    "report_location": address
+                }
 
         # Nếu không tách được địa điểm hoặc Vietmap không xác nhận được
         # thì bắt buộc hỏi lại địa điểm

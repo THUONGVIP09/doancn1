@@ -60,7 +60,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="js/main.js"></script>
 
-  <!-- Chatbot floating widget -->
+ <!-- Chatbot floating widget -->
 <button class="chatbot-toggle" onclick="toggleChatbot()">💬</button>
 
 <div class="chatbot-box" id="chatbotBox">
@@ -79,8 +79,18 @@
         <button onclick="sendSuggestion('Tôi muốn gửi phản ánh')">Gửi phản ánh</button>
         <button onclick="askReportCode()">Tra cứu mã</button>
         <button onclick="askReportLocation()">Tra cứu địa điểm</button>
+        <button onclick="sendCurrentLocationToChat()">📍 Gửi vị trí</button>
+        <button onclick="document.getElementById('chatImageInput').click()">🖼️ Thêm ảnh</button>
     </div>
+    <input
+    type="file"
+    id="chatImageInput"
+    accept="image/*"
+    style="display: none;"
+    onchange="handleChatImageUpload(event)"
+>
 
+<div id="chatImageStatus" style="font-size: 13px; padding: 0 12px 8px; color: #555;"></div>
     <div class="chatbot-input-area">
         <input type="text" id="chatbotInput" placeholder="Nhập tin nhắn..." />
         <button onclick="sendChatMessage()">Gửi</button>

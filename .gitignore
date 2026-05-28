@@ -3,7 +3,6 @@ __pycache__/
 *.pyc
 *.db
 
-
 # Rasa cache and trained models
 .rasa/cache/
 rasa_report_bot/.rasa/cache/
