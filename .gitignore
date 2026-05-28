@@ -1,0 +1,20 @@
+# Python cache
+__pycache__/
+*.pyc
+*.db
+
+# Rasa cache and trained models
+.rasa/cache/
+rasa_report_bot/.rasa/cache/
+rasa_report_bot/models/
+
+# Temporary files
+*.tmp
+~$*
+
+
+
+# Environment / dependencies
+.env
+venv/
+node_modules/
